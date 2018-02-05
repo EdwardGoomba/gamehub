@@ -7,6 +7,32 @@ router.get('/', function(req, res, next) {
   return res.render('index', { title: 'Home' });
 });
 
+// GET /login
+router.get('/login', function(req, res, next) {
+  return res.render('login', {title: 'Log In'});
+});
+
+// POST /login
+router.post('/login', function(req, res, next) {
+  if (req.body.email && req.body. password) {
+    User.authenticate(req.body.email, req.body.password, function(error, user) {
+      if (error || !user) {
+        let err = new Error('Wrong email or password.');
+        err.status = 401;
+        return next(err);
+      } else {
+        req.session.userId = user._id;
+        return res.redirect('/profile');
+      }
+    });
+  } else {
+    let err = new Error('Email and password are required.');
+    err.status = 400;
+    return next(err);
+  }
+});
+
+
 // GET /register
 router.get('/register', function(req, res, next) {
   return res.render('register', {title: 'Sign Up'});
@@ -39,6 +65,7 @@ router.post('/register', function(req, res, next) {
           if (error) {
             return next(error);
           } else {
+            req.session.userId = user._id;
             return res.redirect('/profile');
           }
         });
