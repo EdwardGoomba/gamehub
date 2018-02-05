@@ -7,6 +7,23 @@ router.get('/', function(req, res, next) {
   return res.render('index', { title: 'Home' });
 });
 
+// GET /profile
+router.get('/profile', function(req, res, next) {
+  if (! req.session.userId) {
+    let err = new Error('You are not authorized to view this page.');
+    err.status = 403;
+    return next(err);
+  }
+  User.findById(req.session.userId)
+      .exec(function (error, user) {
+        if (error) {
+          return next(error);
+        } else {
+          return res.render('profile', { title: 'Profile', name: user.name, favorite: user.favoriteGame });
+        }
+      });
+})
+
 // GET /login
 router.get('/login', function(req, res, next) {
   return res.render('login', {title: 'Log In'});
