@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
+const mid = require('../middleware');
 
 // GET /
 router.get('/', function(req, res, next) {
@@ -40,7 +41,7 @@ router.get('/logout', function(req, res, next) {
 
 
 // GET /login
-router.get('/login', function(req, res, next) {
+router.get('/login', mid.loggedOut, function(req, res, next) {
   return res.render('login', {title: 'Log In'});
 });
 
@@ -65,7 +66,7 @@ router.post('/login', function(req, res, next) {
 });
 
 // GET /register
-router.get('/register', function(req, res, next) {
+router.get('/register', mid.loggedOut, function(req, res, next) {
   return res.render('register', {title: 'Sign Up'});
 });
 
