@@ -9,12 +9,7 @@ router.get('/', function(req, res, next) {
 });
 
 // GET /profile
-router.get('/profile', function(req, res, next) {
-  if (! req.session.userId) {
-    let err = new Error('You are not authorized to view this page.');
-    err.status = 403;
-    return next(err);
-  }
+router.get('/profile', mid.requiresLogin, function(req, res, next) {
   User.findById(req.session.userId)
       .exec(function (error, user) {
         if (error) {
