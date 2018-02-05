@@ -2,20 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 const app = express();
-
-// use sessions for tracking logins
-app.use(session({
-  secret: 'Treehouse is awesome',
-  resave: true,
-  saveUninitialized: false
-}));
-
-// make user ID available in templates
-app.use(function (req, res, next) {
-  res.locals.currentUser = req.session.userId;
-  next();
-});
 
 // mongodb connection
 mongoose.connect('mongodb://localhost:27017/gamehub');
@@ -23,6 +11,22 @@ const db = mongoose.connection;
 
 // mongo Error
 db.on('error', console.error.bind(console, 'connection error:'));
+
+// use sessions for tracking logins
+app.use(session({
+  secret: 'Treehouse is awesome',
+  resave: true,
+  saveUninitialized: false,
+  store: new MongoStore({
+    mongooseConnection: db
+  })
+}));
+
+// make user ID available in templates
+app.use(function (req, res, next) {
+  res.locals.currentUser = req.session.userId;
+  next();
+});
 
 // parse incoming requests
 app.use(bodyParser.json());
